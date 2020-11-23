@@ -1,0 +1,160 @@
+dw-2020-parcial-1
+================
+Tepi
+9/3/2020
+
+# Examen parcial
+
+Indicaciones generales:
+
+  - Usted tiene el período de la clase para resolver el examen parcial.
+
+  - La entrega del parcial, al igual que las tareas, es por medio de su
+    cuenta de github, pegando el link en el portal de MiU.
+
+  - Pueden hacer uso del material del curso e internet (stackoverflow,
+    etc.). Sin embargo, si encontramos algún indicio de copia, se
+    anulará el exámen para los estudiantes involucrados. Por lo tanto,
+    aconsejamos no compartir las agregaciones que generen.
+
+## Sección I: Preguntas teóricas.
+
+  - Existen 10 preguntas directas en este Rmarkdown, de las cuales usted
+    deberá responder 5. Las 5 a responder estarán determinadas por un
+    muestreo aleatorio basado en su número de carné.
+
+  - Ingrese su número de carné en `set.seed()` y corra el chunk de R
+    para determinar cuáles preguntas debe responder.
+
+<!-- end list -->
+
+``` r
+set.seed(20180072) 
+v<- 1:10
+preguntas <-sort(sample(v, size = 5, replace = FALSE ))
+
+paste0("Mis preguntas a resolver son: ",paste0(preguntas,collapse = ", "))
+```
+
+    ## [1] "Mis preguntas a resolver son: 2, 3, 4, 7, 9"
+
+### Listado de preguntas teóricas
+
+1.  Para las siguientes sentencias de `base R`, liste su contraparte de
+    `dplyr`:
+      - `str()`
+      - `df[,c("a","b")]`
+      - `names(df)[4] <- "new_name"` donde la posición 4 corresponde a
+        la variable `old_name`
+      - `df[df$variable == "valor",]`
+2.  Al momento de filtrar en SQL, ¿cuál keyword cumple las mismas
+    funciones que el keyword `OR` para filtrar uno o más elementos una
+    misma columna?
+
+**el keyword que usa en SQl es WHERE “en donde” y con ese se pueden
+filtrar dato en una misma columna.junto con este se usa AND y OR**
+
+3.  ¿Por qué en R utilizamos funciones de la familia apply
+    (lapply,vapply) en lugar de utilizar ciclos? **El usar aplicaciones
+    de funciones en vez de loops en R es una decision que se toma ya que
+    R esta diseñado para funcionar con estas funciones. Y tambien acepta
+    usar loops pero su enfoque principal es usar sapply,vaply,lapply y
+    demas.**
+
+4.  ¿Cuál es la diferencia entre utilizar `==` y `=` en R?
+
+**“==” significa que va a comprobar o dictar que los elementos sean
+igual, po ejemplo 3 == 3 devolveria True , mienstras que 3 == 4
+devolveria FALSE. Mienstras que “=” se usa para asignar un valor a una
+variable. Es por preferencia per normalmente en vez de usar el “=” se
+usa “\<-” para que no se confunda.**
+
+5.  ¿Cuál es la forma correcta de cargar un archivo de texto donde el
+    delimitador es `:`?
+
+6.  ¿Qué es un vector y en qué se diferencia en una lista en R?
+
+7.  ¿Qué pasa si quiero agregar una nueva categoría a un factor que no
+    se encuentra en los niveles existentes? **si queremos agregar una
+    nueva categoria a un factor el cual no esta listado ,
+    silenciosamente nos va a correr sin problmeas pero va a combertir el
+    nuevo dato en un NA**
+
+8.  Si en un dataframe, a una variable de tipo `factor` le agrego un
+    nuevo elemento que *no se encuentra en los niveles existentes*,
+    ¿cuál sería el resultado esperado y por qué?
+    
+      - El nuevo elemento
+      - `NA`
+
+9.  En SQL, ¿para qué utilizamos el keyword `HAVING`?
+
+**El key word de HAVING lo utilizamos ya que WHERE no se puede utilizar
+para hacer agregaciones. Entonces para poder filtrar por agregaciones
+necesitamos HAVING**
+
+10. Si quiero obtener como resultado las filas de la tabla A que no se
+    encuentran en la tabla B, ¿cómo debería de completar la siguiente
+    sentencia de SQL?
+    
+      - SELECT \* FROM A \_\_\_\_\_\_\_ B ON A.KEY = B.KEY WHERE
+        \_\_\_\_\_\_\_\_\_\_ = \_\_\_\_\_\_\_\_\_\_
+
+Extra: ¿Cuántos posibles exámenes de 5 preguntas se pueden realizar
+utilizando como banco las diez acá presentadas? depende realmente de las
+condiciones que se tomen en cuenta , por ejemplo si nos improta que se
+repitan las preguntas o no. pero asumiendo que (responder con código de
+R.)
+
+``` r
+library(gtools)
+permutations(5,1,v)
+```
+
+    ##      [,1]
+    ## [1,]    1
+    ## [2,]    2
+    ## [3,]    3
+    ## [4,]    4
+    ## [5,]    5
+
+## Sección II Preguntas prácticas.
+
+  - Conteste las siguientes preguntas utilizando sus conocimientos de R.
+    Adjunte el código que utilizó para llegar a sus conclusiones en un
+    chunk del markdown.
+
+A. De los clientes que están en más de un país,¿cuál cree que es el más
+rentable y por qué?
+
+B. Estrategia de negocio ha decidido que ya no operará en aquellos
+territorios cuyas pérdidas sean “considerables”. Bajo su criterio,
+¿cuáles son estos territorios y por qué ya no debemos operar ahí?
+
+``` r
+library(dplyr)
+
+a <- readRDS(file = "parcial_anonimo.rds")
+
+
+b <- a %>% select(Pais,Cliente) %>% group_by(Cliente) %>% summarise(clientes = n_distinct(Pais)) %>%  arrange(desc(clientes))
+b <- b[1:7,]
+
+
+c <- a %>% group_by(Cliente) %>% summarise(Ingresos=sum(Venta)) 
+clientes_internacionales <- c("044118d4","a17a7558","bf1e94e9","c53868a0","f2aab44e","f676043b","ff122c3f")
+CI <- match(x = clientes_internacionales,table = c$Cliente)
+c <- c[CI,]
+c
+```
+
+    ## # A tibble: 7 x 2
+    ##   Cliente  Ingresos
+    ##   <chr>       <dbl>
+    ## 1 044118d4    9436.
+    ## 2 a17a7558   19818.
+    ## 3 bf1e94e9       0 
+    ## 4 c53868a0   13813.
+    ## 5 f2aab44e     400.
+    ## 6 f676043b    3635.
+    ## 7 ff122c3f   15359.
